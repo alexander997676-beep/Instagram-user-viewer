@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaStalk Pro</title>
+    <style>
+        :root {
+            --bg-body: #fafafa;
+            --bg-card: #ffffff;
+            --text-primary: #262626;
+            --text-secondary: #8e8e8e;
+            --link-blue: #0095f6;
+            --border-color: #dbdbdb;
+            --skeleton: #efefef;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Header / Search --- */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            width: 100%;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            max-width: 935px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Cookie', cursive, sans-serif; /* Fallback */
+            letter-spacing: 1px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        input {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        button.search-btn {
+            background: var(--link-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button.search-btn:hover { opacity: 0.8; }
+        button.search-btn:disabled { background: #b2dffc; cursor: default; }
+
+        /* --- Main Container --- */
+        main {
+            max-width: 935px;
+            width: 100%;
+            padding: 30px 20px;
+            display: none; /* Hidden until loaded */
+        }
+
+        /* --- Profile Header --- */
+        .profile-header {
+            display: flex;
+            margin-bottom: 44px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 44px;
+        }
+
+        .profile-image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            margin-right: 30px;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+        }
+
+        .profile-info {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .username-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .username {
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        .verified-badge {
+            width: 18px;
+            height: 18px;
+            fill: #3897f0;
+            display: none; /* Toggled via JS */
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .stats-row span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .fullname {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .bio {
+            font-size: 16px;
+            white-space: pre-wrap; /* Keeps line breaks */
+            line-height: 1.5;
+        }
+
+        /* --- Gallery Grid --- */
+        .gallery-nav {
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+        
+        .gallery-tab {
+            border-top: 1px solid var(--text-primary);
+            margin-top: -1px;
+            padding: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+            gap: 28px; /* Classic Insta gap */
+        }
+
+        .gallery-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; /* Square aspect ratio */
+            background-color: var(--skeleton);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .gallery-item img, .gallery-item video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 20px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        /* Hover Overlay */
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .overlay-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .overlay-stat svg {
+            fill: white;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* --- Modal (Lightbox) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .modal-media {
+            flex: 1.5;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-media img, .modal-media video {
+            width: 100%;
+            height: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .modal-info {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .modal-user-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .modal-username {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .modal-caption {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .modal-meta {
+            margin-top: auto;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .download-btn {
+            background: var(--link-blue);
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 15px;
+            display: block;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* --- Utilities --- */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+            display: none;
+        }
+        
+        .error-msg {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                padding-left: 20px;
+            }
+            .profile-image-container { margin-bottom: 15px; justify-content: flex-start; }
+            .profile-pic { width: 80px; height: 80px; }
+            .stats-row { justify-content: space-between; gap: 0; border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; }
+            .stats-row li { display: flex; flex-direction: column; align-items: center; }
+            .gallery-grid { gap: 3px; }
+            .modal-content { flex-direction: column; height: auto; max-height: none; }
+            .modal-media { max-height: 50vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">InstaStalk Pro</div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search Username..." value="">
+                <button class="search-btn" onclick="fetchData()">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="loading" id="loader">Loading Profile data...</div>
+
+    <!-- Main Profile Area -->
+    <main id="mainContent">
+        <div class="profile-header">
+            <div class="profile-image-container">
+                <img src="" id="profilePic" class="profile-pic" alt="Profile">
+            </div>
+            <div class="profile-info">
+                <div class="username-row">
+                    <h2 class="username" id="usernameDisplay">username</h2>
+                    <!-- Verified SVG -->
+                    <svg class="verified-badge" id="verifiedBadge" viewBox="0 0 48 48">
+                        <path d="M24 48C10.8 48 0 37.2 0 24S10.8 0 24 0s24 10.8 24 24-10.8 24-24 24zm-2.4-14.4l13.6-13.6-2.8-2.8-10.8 10.8-5.6-5.6-2.8 2.8 8.4 8.4z"></path>
+                    </svg>
+                </div>
+                
+                <div class="stats-row">
+                    <div><span id="postsCount">0</span> posts</div>
+                    <div><span id="followersCount">0</span> followers</div>
+                    <div><span id="followingCount">0</span> following</div>
+                </div>
+
+                <div class="fullname" id="fullNameDisplay">Full Name</div>
+                <div class="bio" id="bioDisplay"></div>
+            </div>
+        </div>
+
+        <!-- Gallery Tabs -->
+        <div class="gallery-nav">
+            <div class="gallery-tab">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                POSTS
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Items injected by JS -->
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="postModal" class="modal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <div class="modal-media" id="modalMediaContainer">
+                <!-- Image or Video injected here -->
+            </div>
+            <div class="modal-info">
+                <div class="modal-header">
+                    <img src="" id="modalUserImg" class="modal-user-img">
+                    <div class="modal-username" id="modalUsername"></div>
+                </div>
+                <div class="modal-caption" id="modalCaption"></div>
+                <div class="modal-meta">
+                    <div id="modalDate"></div>
+                    <div style="margin-top:5px;"><strong id="modalLikes"></strong> Likes</div>
+                </div>
+                <a href="#" target="_blank" id="downloadLink" class="download-btn">Download Media</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://api.xyro.site/stalk/instagram?username=";
+
+        // --- DOM Elements ---
+        const els = {
+            input: document.getElementById('searchInput'),
+            loader: document.getElementById('loader'),
+            error: document.getElementById('errorMsg'),
+            main: document.getElementById('mainContent'),
+            pfp: document.getElementById('profilePic'),
+            username: document.getElementById('usernameDisplay'),
+            fullName: document.getElementById('fullNameDisplay'),
+            bio: document.getElementById('bioDisplay'),
+            verified: document.getElementById('verifiedBadge'),
+            stats: {
+                posts: document.getElementById('postsCount'),
+                followers: document.getElementById('followersCount'),
+                following: document.getElementById('followingCount')
+            },
+            grid: document.getElementById('galleryGrid'),
+            modal: {
+                self: document.getElementById('postModal'),
+                media: document.getElementById('modalMediaContainer'),
+                userImg: document.getElementById('modalUserImg'),
+                username: document.getElementById('modalUsername'),
+                caption: document.getElementById('modalCaption'),
+                date: document.getElementById('modalDate'),
+                likes: document.getElementById('modalLikes'),
+                dlBtn: document.getElementById('downloadLink')
+            }
+        };
+
+        // --- Fetch Logic ---
+        async function fetchData() {
+            const username = els.input.value.trim();
+            if (!username) return alert("Please enter a username");
+
+            // Reset UI
+            els.main.style.display = 'none';
+            els.error.style.display = 'none';
+            els.loader.style.display = 'block';
+            els.grid.innerHTML = '';
+
+            try {
+                const res = await fetch(API_BASE + username);
+                const json = await res.json();
+
+                if (!json.status || !json.data) {
+                    throw new Error("User not found or API Error");
+                }
+
+                renderProfile(json.data);
+                
+            } catch (e) {
+                els.error.innerText = e.message;
+                els.error.style.display = 'block';
+            } finally {
+                els.loader.style.display = 'none';
+            }
+        }
+
+        // --- Render Profile ---
+        function renderProfile(data) {
+            // Header Info
+            els.pfp.src = data.profile_pic_url;
+            els.username.innerText = data.username;
+            els.fullName.innerText = data.full_name;
+            els.bio.innerText = data.biography;
+            
+            // Verified Badge
+            els.verified.style.display = data.is_verified ? 'block' : 'none';
+
+            // Stats
+            els.stats.posts.innerText = formatNumber(data.posts_count);
+            els.stats.followers.innerText = formatNumber(data.followers_count);
+            els.stats.following.innerText = formatNumber(data.following_count);
+
+            // Posts Loop
+            if (data.posts && data.posts.length > 0) {
+                data.posts.forEach(post => {
+                    createPostItem(post, data);
+                });
+            } else {
+                els.grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">No posts available or Private Account</div>';
+            }
+
+            els.main.style.display = 'block';
+        }
+
+        // --- Create Grid Item ---
+        function createPostItem(post, userData) {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+
+            // Check for Video
+            const isVideo = post.is_video;
+            const iconHtml = isVideo ? `<div class="video-icon">▶</div>` : '';
+
+            div.innerHTML = `
+                <img src="${post.thumbnail_url}" loading="lazy">
+                ${iconHtml}
+                <div class="gallery-overlay">
+                    <div class="overlay-stat">
+                        <svg viewBox="0 0 48 48"><path d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 15.1-15.5 25.3L24 48 4.9 42.9C-4.7 32.7 1.2 24.4 1.2 17.6c0-6.3 4.7-11.5 10.4-11.5 4 0 7.3 2.5 8.9 6.2h3.2c1.7-3.7 5.3-6.2 8.9-6.2z"></path></svg>
+                        ${formatNumber(post.like_count)}
+                    </div>
+                    <div class="overlay-stat">
+                        <svg viewBox="0 0 48 48"><path d="M47.8 3.8c-.3-.5-.8-.8-1.3-.8h-45C.9 3.1.3 3.5.1 4S0 5.2.4 5.7l15.9 15.6 5.5 22.6c.1.6.6 1 1.2 1.1h.2c.5 0 1-.3 1.3-.7l23.2-39c.4-.4.4-1 .1-1.5zM5.2 6.1h35.5L18 18.7 5.2 6.1zm18.7 33.6l-4.4-18.4L42.4 8.6 23.9 39.7z"></path></svg>
+                        ${formatNumber(post.comment_count)}
+                    </div>
+                </div>
+            `;
+
+            // Click Event for Modal
+            div.onclick = () => openModal(post, userData);
+            els.grid.appendChild(div);
+        }
+
+        // --- Modal Logic ---
+        function openModal(post, userData) {
+            // Set User Header in Modal
+            els.modal.userImg.src = userData.profile_pic_url;
+            els.modal.username.innerText = userData.username;
+
+            // Set Media
+            els.modal.media.innerHTML = ''; // Clear previous
+            if (post.is_video) {
+                const vid = document.createElement('video');
+                vid.src = post.video_url;
+                vid.controls = true;
+                vid.autoplay = true;
+                els.modal.media.appendChild(vid);
+                els.modal.dlBtn.href = post.video_url;
+                els.modal.dlBtn.download = `insta_vid_${post.shortcode}.mp4`;
+            } else {
+                const img = document.createElement('img');
+                // The thumbnail in JSON is actually high quality usually, 
+                // but strictly speaking we don't have a separate "display_url" in this JSON schema.
+                // We will use thumbnail_url or video_url(if it was image post posing as video which happens rarely).
+                // Based on JSON, image posts use thumbnail_url.
+                img.src = post.thumbnail_url; 
+                els.modal.media.appendChild(img);
+                els.modal.dlBtn.href = post.thumbnail_url;
+                els.modal.dlBtn.download = `insta_img_${post.shortcode}.jpg`;
+            }
+
+            // Set Details
+            els.modal.caption.innerText = post.caption || "";
+            els.modal.likes.innerText = formatNumber(post.like_count);
+            
+            // Format Date
+            const date = new Date(post.timestamp * 1000);
+            els.modal.date.innerText = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+
+            els.modal.self.style.display = 'flex';
+        }
+
+        function closeModal() {
+            els.modal.self.style.display = 'none';
+            els.modal.media.innerHTML = ''; // Stop video playback
+        }
+
+        // Close modal if clicking outside content
+        window.onclick = function(event) {
+            if (event.target == els.modal.self) {
+                closeModal();
+            }
+        }
+
+        // --- Helpers ---
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+            return num;
+        }
+
+        // Auto-Search if ?username= is in URL (Optional Polish)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userParam = urlParams.get('username');
+        if(userParam) {
+            els.input.value = userParam;
+            fetchData();
+        }
+    </script>
+</body>
+</html>

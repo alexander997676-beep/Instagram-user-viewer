@@ -2,672 +2,649 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstaInsight Analytics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS SOCIAL | Ultra Edition</title>
+    
+    <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent: #3b82f6;
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --success: #10b981;
-            --danger: #ef4444;
+            --bg-body: #000000;
+            --bg-surface: #121212;
+            --bg-glass: rgba(20, 20, 20, 0.85);
+            --primary: #3b82f6; 
+            --accent: #8b5cf6;
+            --gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --insta-grad: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --nav-height: 70px;
         }
 
-        * { box-sizing: border-box; outline: none; }
-
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
-            color: var(--text-main);
             margin: 0;
-            min-height: 100vh;
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- Header --- */
+        .top-bar {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            padding: 15px 20px;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            pointer-events: none; /* Let clicks pass through to video */
+        }
+        .app-logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            pointer-events: auto;
+        }
+
+        /* --- Main Views --- */
+        .view-container {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        /* HOME: Reels Feed */
+        #feedView {
+            height: 100%;
+            width: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none; /* Firefox */
+        }
+        #feedView::-webkit-scrollbar { display: none; }
+
+        .reel-item {
+            width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            background: #111;
+            overflow: hidden;
+        }
+
+        .reel-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Filter to make text pop */
+            filter: brightness(0.9);
+        }
+
+        /* Reel UI Elements */
+        .reel-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px 20px 90px 20px; /* Bottom padding for nav */
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%);
+        }
+
+        .user-info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .u-avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 2px solid white;
+            padding: 2px;
+            background-clip: content-box;
+            background-color: transparent;
+        }
+        .u-name { font-weight: 700; font-size: 1.1rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .follow-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .reel-caption {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            max-width: 85%;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Right Sidebar Actions */
+        .reel-actions {
+            position: absolute;
+            right: 15px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        /* --- Animations --- */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
-
-        /* --- Header --- */
-        nav {
-            width: 100%;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(15, 23, 42, 0.8);
-        }
-
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-input {
-            width: 100%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            gap: 6px;
             color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-
-        .search-btn {
-            background: var(--accent-gradient);
-            border: none;
-            color: white;
-            padding: 0 25px;
-            border-radius: 12px;
+            font-size: 0.8rem;
             font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .search-btn:active { transform: scale(0.95); }
-
-        /* --- Main Layout --- */
-        main {
-            width: 100%;
-            max-width: 1200px;
-            padding: 30px 20px;
-            display: none;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        /* --- Profile Card --- */
-        .profile-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-        }
-
-        .pfp-wrapper {
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .pfp {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.1);
-            object-fit: cover;
-        }
-
-        .verified-badge {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: #3b82f6;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--bg-dark);
-        }
-
-        .profile-info h1 { margin: 0 0 5px 0; font-size: 2rem; display: flex; align-items: center; gap: 10px; }
-        .username-tag { color: var(--text-sub); font-size: 1.1rem; margin-bottom: 15px; display: block; }
-        .bio { color: var(--text-main); line-height: 1.6; margin-bottom: 20px; max-width: 600px; }
-
-        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--glass-border);
-            color: var(--text-sub);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .btn-outline:hover { background: rgba(255,255,255,0.05); color: white; border-color: var(--text-sub); }
-
-        /* --- Analytics Dashboard --- */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .stat-label { color: var(--text-sub); font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
-        .stat-value { font-size: 1.8rem; font-weight: 700; color: white; }
-        .stat-sub { font-size: 0.8rem; color: var(--success); }
-
-        /* --- Toolbar --- */
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .filter-group {
-            display: flex;
-            background: var(--glass-bg);
-            padding: 4px;
-            border-radius: 10px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .filter-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-sub);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .filter-btn.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-weight: 600;
-        }
-
-        /* --- Grid --- */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .post-card {
-            background: var(--glass-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            position: relative;
-            aspect-ratio: 1/1;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .post-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            z-index: 2;
-        }
-
-        .post-img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .post-meta {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            color: white;
-            opacity: 0;
-            transition: opacity 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-        .post-card:hover .post-meta { opacity: 1; }
-
-        .meta-stat { display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 0.9rem; }
-        .type-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* --- Chart Section --- */
-        .chart-container {
-            width: 100%;
-            height: 60px;
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .bar {
-            flex: 1;
-            background: var(--accent);
-            opacity: 0.5;
-            border-radius: 2px 2px 0 0;
-            transition: height 0.5s ease;
-            position: relative;
-        }
-        .bar:hover { opacity: 1; }
-        .bar:hover::after {
-            content: attr(data-val);
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px;
-            color: white;
-        }
-
-        /* --- Modal --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
+        .action-btn:active { transform: scale(0.8); }
+        .icon-circle {
+            width: 45px; height: 45px;
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(5px);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* SEARCH: Analytics View */
+        #searchView {
+            display: none; /* Hidden initially */
+            height: 100%;
+            background: var(--bg-body);
+            overflow-y: auto;
+            padding-bottom: 90px;
+        }
+
+        .search-header {
+            position: sticky; top: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            z-index: 40;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-bar {
+            background: #222;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border);
+        }
+        .search-input { width: 100%; background: none; border: none; color: white; font-size: 1rem; }
+
+        /* Profile Card */
+        .profile-hero {
+            padding: 30px 20px;
+            background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(0,0,0,1) 100%);
+            text-align: center;
+            display: none; /* Show after search */
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+
+        .pfp-lg {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--bg-body);
+            outline: 2px solid #8b5cf6;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 16px;
+        }
+        .stat-box { display: flex; flex-direction: column; }
+        .stat-val { font-weight: 700; font-size: 1.2rem; }
+        .stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Media Grid */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+        }
+        .media-item {
+            aspect-ratio: 1/1;
+            background: #222;
+            position: relative;
+            cursor: pointer;
+        }
+        .media-item img { width: 100%; height: 100%; object-fit: cover; }
+        .type-badge { position: absolute; top: 5px; right: 5px; color: white; filter: drop-shadow(0 0 2px black); }
+
+        /* --- Bottom Navigation --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            height: var(--nav-height);
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             z-index: 100;
+        }
+
+        .nav-btn {
+            background: none; border: none;
+            color: #666;
+            display: flex; flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 60px;
+        }
+        .nav-btn.active { color: white; }
+        .nav-btn.active svg { stroke: var(--primary); fill: rgba(59, 130, 246, 0.2); }
+
+        /* Loader & Skeleton */
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 100% {transform: rotate(360deg);} }
+
+        .loader-container {
+            height: 100vh; display: flex; 
+            align-items: center; justify-content: center;
+            flex-direction: column; gap: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.95);
             display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+        }
+        .modal-content { max-width: 100%; max-height: 80vh; border-radius: 10px; overflow: hidden; }
+        .download-btn {
+            margin-top: 20px;
+            background: white; color: black;
+            padding: 10px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        .modal-content {
-            background: #1e293b;
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            max-width: 1000px;
-            width: 100%;
-            max-height: 90vh;
-            display: flex;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-media { flex: 1.5; background: black; display: flex; align-items: center; justify-content: center; }
-        .modal-media img, .modal-media video { max-width: 100%; max-height: 90vh; }
-        .modal-sidebar { flex: 1; padding: 25px; display: flex; flex-direction: column; overflow-y: auto; }
-
-        .loader {
-            border: 4px solid rgba(255,255,255,0.1);
-            border-left-color: var(--accent);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 50px auto;
-            display: none;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        
-        @media (max-width: 768px) {
-            .profile-card { flex-direction: column; text-align: center; }
-            .profile-info h1 { justify-content: center; }
-            .action-buttons { justify-content: center; }
-            .modal-content { flex-direction: column; height: auto; }
-            .modal-media { height: 300px; }
-        }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search Instagram username..." onkeypress="handleEnter(event)">
-            <button class="search-btn" onclick="fetchData()"><i data-feather="search"></i></button>
-        </div>
-    </nav>
+    <!-- Header -->
+    <div class="top-bar">
+        <div class="app-logo">NEXUS SOCIAL</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">LIVE</div>
+    </div>
 
-    <div id="loader" class="loader"></div>
-    <div id="errorMsg" style="text-align: center; color: var(--danger); margin-top: 20px; display: none;"></div>
-
-    <main id="mainContent">
-        <!-- Profile Header -->
-        <div class="profile-card">
-            <div class="pfp-wrapper">
-                <img id="pfp" src="" class="pfp">
-                <div id="verifiedBadge" class="verified-badge" style="display:none;"><i data-feather="check" width="16"></i></div>
+    <div class="view-container">
+        
+        <!-- === FEED VIEW === -->
+        <div id="feedView">
+            <div id="feedLoader" class="loader-container">
+                <div class="spinner"></div>
+                <span>Curating Feed...</span>
             </div>
-            <div class="profile-info">
-                <h1 id="fullName">User Name</h1>
-                <span id="username" class="username-tag">@username</span>
-                <p id="biography" class="bio">Biography text goes here...</p>
-                <div class="action-buttons">
-                    <button class="btn-outline" onclick="exportData()"><i data-feather="download"></i> Export JSON</button>
-                    <a id="pfpLink" href="#" target="_blank" class="btn-outline"><i data-feather="image"></i> View HD PFP</a>
-                    <a id="instaLink" href="#" target="_blank" class="btn-outline"><i data-feather="external-link"></i> Instagram</a>
+            <div id="reelsContainer"></div>
+        </div>
+
+        <!-- === SEARCH VIEW === -->
+        <div id="searchView">
+            <div class="search-header">
+                <div class="search-bar">
+                    <i data-feather="search" style="color:#666"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search Users (e.g. therock)..." onkeypress="handleEnter(event)">
                 </div>
             </div>
-        </div>
 
-        <!-- Analytics Dashboard -->
-        <div class="dashboard-grid">
-            <div class="stat-card">
-                <span class="stat-label"><i data-feather="users" width="14"></i> Followers</span>
-                <span class="stat-value" id="statFollowers">0</span>
+            <div id="searchLoader" class="loader-container" style="display:none; height: 50vh;">
+                <div class="spinner"></div>
             </div>
-            <div class="stat-card">
-                <span class="stat-label"><i data-feather="grid" width="14"></i> Posts</span>
-                <span class="stat-value" id="statPosts">0</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label"><i data-feather="heart" width="14"></i> Avg. Likes</span>
-                <span class="stat-value" id="statAvgLikes">0</span>
-                <span class="stat-sub">Based on latest posts</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label"><i data-feather="activity" width="14"></i> Engagement Rate</span>
-                <span class="stat-value" id="statEngagement">0%</span>
-                <span class="stat-sub">Estimated performance</span>
-            </div>
-        </div>
 
-        <!-- Engagement Chart (Visual) -->
-        <div class="stat-card" style="margin-bottom: 30px;">
-            <span class="stat-label">Recent Post Performance (Likes)</span>
-            <div id="likesChart" class="chart-container">
-                <!-- Bars injected via JS -->
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <div class="filter-group">
-                <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-                <button class="filter-btn" onclick="setFilter('video', this)">Videos</button>
-                <button class="filter-btn" onclick="setFilter('image', this)">Photos</button>
-            </div>
-            <div class="filter-group">
-                <button class="filter-btn active" onclick="setSort('newest', this)">Newest</button>
-                <button class="filter-btn" onclick="setSort('popular', this)">Most Popular</button>
-            </div>
-        </div>
-
-        <!-- Gallery -->
-        <div id="galleryGrid" class="gallery-grid">
-            <!-- Posts go here -->
-        </div>
-    </main>
-
-    <!-- Modal -->
-    <div id="mediaModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
-        <div class="modal-content">
-            <div class="modal-media" id="modalMedia"></div>
-            <div class="modal-sidebar">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                    <img id="modalPfp" src="" style="width:40px; height:40px; border-radius:50%;">
-                    <div>
-                        <div id="modalUser" style="font-weight:bold;"></div>
-                        <div id="modalDate" style="font-size:12px; color:var(--text-sub);"></div>
+            <div id="profileResult" class="profile-hero">
+                <img id="pfp" src="" class="pfp-lg">
+                <h2 id="fullName" style="margin:0;">User Name</h2>
+                <div id="username" style="color:var(--text-muted); margin-bottom:10px;">@username</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-val" id="statPosts">0</span>
+                        <span class="stat-lbl">Posts</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-val" id="statFollowers">0</span>
+                        <span class="stat-lbl">Followers</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-val" id="statLikes">0</span>
+                        <span class="stat-lbl">Avg Likes</span>
                     </div>
                 </div>
-                <div id="modalCaption" style="flex:1; line-height:1.6; font-size:14px; margin-bottom:20px;"></div>
-                
-                <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:20px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-                    <span><i data-feather="heart" width="16" style="vertical-align:middle"></i> <span id="modalLikes">0</span></span>
-                    <span><i data-feather="message-circle" width="16" style="vertical-align:middle"></i> <span id="modalComments">0</span></span>
-                </div>
 
-                <a id="modalDownload" href="#" target="_blank" class="search-btn" style="text-align:center; text-decoration:none;">
-                    Download Media
-                </a>
+                <div style="text-align: left; padding: 0 10px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom:10px;">Recent Media</h3>
+                    <div id="mediaGrid" class="media-grid"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptySearchState" style="text-align:center; padding: 50px 20px; color: var(--text-muted);">
+                <i data-feather="compass" width="40" height="40" style="margin-bottom:10px; opacity: 0.5;"></i>
+                <p>Search for an Instagram user to analyze their profile and download media.</p>
             </div>
         </div>
+
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="setView('feed', this)">
+            <i data-feather="film"></i>
+            <span>Reels</span>
+        </button>
+        <button class="nav-btn" onclick="setView('search', this)">
+            <i data-feather="bar-chart-2"></i>
+            <span>Insights</span>
+        </button>
+    </nav>
+
+    <!-- Modal -->
+    <div id="mediaModal" class="modal" onclick="if(event.target===this) closeModal()">
+        <div id="modalContent" class="modal-content"></div>
+        <a id="downloadLink" href="#" target="_blank" class="download-btn">
+            <i data-feather="download"></i> Download HD
+        </a>
+        <button onclick="closeModal()" style="background:transparent; border:none; color:white; margin-top:20px; text-decoration:underline;">Close</button>
     </div>
 
     <script>
         feather.replace();
 
-        let currentData = null;
-        let activePosts = [];
-        let currentFilter = 'all';
-        let currentSort = 'newest';
+        // --- Configuration ---
+        // These popular users will generate the initial "Feed"
+        const SEED_USERS = ['pubity', '9gag', 'zachking', 'khaby00', 'memezar'];
+        let isMuted = true;
+        
+        // --- Init ---
+        window.onload = () => {
+            initFeed();
+            setupObserver();
+        };
 
-        function handleEnter(e) {
-            if(e.key === 'Enter') fetchData();
+        // --- Navigation Logic ---
+        function setView(viewName, btn) {
+            // Button UI
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            // View UI
+            const feedView = document.getElementById('feedView');
+            const searchView = document.getElementById('searchView');
+            
+            if(viewName === 'feed') {
+                feedView.style.display = 'block';
+                searchView.style.display = 'none';
+                // Resume playing the visible reel
+                handleIntersection(); 
+            } else {
+                feedView.style.display = 'none';
+                searchView.style.display = 'block';
+                // Pause all reels
+                document.querySelectorAll('video').forEach(v => v.pause());
+            }
         }
 
-        async function fetchData() {
-            const username = document.getElementById('searchInput').value.trim();
-            if(!username) return;
-
-            // UI Reset
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('errorMsg').style.display = 'none';
+        // --- Feed Logic (Reels) ---
+        async function initFeed() {
+            const container = document.getElementById('reelsContainer');
+            const loader = document.getElementById('feedLoader');
+            
+            // Pick a random seed user to simulate a fresh feed
+            const randomUser = SEED_USERS[Math.floor(Math.random() * SEED_USERS.length)];
 
             try {
-                const response = await fetch(`https://api.xyro.site/stalk/instagram?username=${username}`);
-                const json = await response.json();
+                const res = await fetch(`https://api.xyro.site/stalk/instagram?username=${randomUser}`);
+                const json = await res.json();
 
-                if(!json.status || !json.data) throw new Error("User not found or API error");
+                if(!json.status || !json.data.posts) throw new Error("API Error");
 
-                currentData = json.data;
-                activePosts = [...(currentData.posts || [])];
-                
-                renderProfile();
-                calculateAnalytics();
-                applyFilters();
+                const reels = json.data.posts.filter(p => p.is_video);
+                const user = json.data;
 
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
+                if(reels.length === 0) {
+                    loader.innerHTML = "No reels found. Refreshing...";
+                    setTimeout(initFeed, 1000); // Retry
+                    return;
+                }
+
+                // Render Reels
+                reels.slice(0, 8).forEach((reel, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'reel-item';
+                    el.innerHTML = `
+                        <video class="reel-video" src="${reel.video_url}" loop playsinline webkit-playsinline muted poster="${reel.thumbnail_url}"></video>
+                        
+                        <div class="reel-overlay">
+                            <div class="user-info-row">
+                                <img src="${user.profile_pic_url}" class="u-avatar">
+                                <span class="u-name">${user.username}</span>
+                                <button class="follow-btn">Follow</button>
+                            </div>
+                            <div class="reel-caption">${reel.caption || ''}</div>
+                        </div>
+
+                        <div class="reel-actions">
+                            <div class="action-btn">
+                                <div class="icon-circle"><i data-feather="heart" fill="white" stroke="none"></i></div>
+                                <span>${formatNum(reel.like_count)}</span>
+                            </div>
+                            <div class="action-btn">
+                                <div class="icon-circle"><i data-feather="message-circle"></i></div>
+                                <span>${formatNum(reel.comment_count)}</span>
+                            </div>
+                            <div class="action-btn" onclick="toggleMuteAll()">
+                                <div class="icon-circle" id="muteIcon-${index}">
+                                    <i data-feather="volume-x"></i>
+                                </div>
+                                <span>Audio</span>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                    
+                    // Click video to toggle play/pause
+                    const vid = el.querySelector('video');
+                    el.addEventListener('click', (e) => {
+                        if(e.target.closest('.reel-actions')) return; // Ignore action clicks
+                        if(vid.paused) vid.play();
+                        else vid.pause();
+                    });
+                });
+
+                loader.style.display = 'none';
                 feather.replace();
+                setupObserver(); // Re-attach observer to new elements
 
             } catch (err) {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('errorMsg').innerText = err.message;
-                document.getElementById('errorMsg').style.display = 'block';
+                console.error(err);
+                loader.innerHTML = "<span style='color:red'>Feed Error. Try refreshing.</span>";
             }
         }
 
-        function renderProfile() {
-            const d = currentData;
-            document.getElementById('pfp').src = d.profile_pic_url;
-            document.getElementById('pfpLink').href = d.profile_pic_url;
-            document.getElementById('fullName').innerText = d.full_name;
-            document.getElementById('username').innerText = `@${d.username}`;
-            document.getElementById('biography').innerText = d.biography;
-            document.getElementById('instaLink').href = `https://instagram.com/${d.username}`;
-            document.getElementById('verifiedBadge').style.display = d.is_verified ? 'flex' : 'none';
-
-            document.getElementById('statFollowers').innerText = formatNumber(d.followers_count);
-            document.getElementById('statPosts').innerText = formatNumber(d.posts_count);
-        }
-
-        function calculateAnalytics() {
-            if(!activePosts.length) return;
-
-            let totalLikes = 0;
-            let totalComments = 0;
-            const likesArray = [];
-
-            activePosts.forEach(post => {
-                totalLikes += post.like_count;
-                totalComments += post.comment_count;
-                likesArray.push(post.like_count);
-            });
-
-            // Avg Likes
-            const avgLikes = Math.round(totalLikes / activePosts.length);
-            document.getElementById('statAvgLikes').innerText = formatNumber(avgLikes);
-
-            // Engagement Rate ( (Likes + Comments) / Followers ) * 100
-            const engagement = ((totalLikes + totalComments) / currentData.followers_count) * 100;
-            document.getElementById('statEngagement').innerText = engagement.toFixed(2) + '%';
-
-            // Chart Generation
-            const chart = document.getElementById('likesChart');
-            chart.innerHTML = '';
-            const maxLike = Math.max(...likesArray);
+        // --- Intersection Observer (Auto Play) ---
+        let observer;
+        function setupObserver() {
+            let options = { root: null, rootMargin: '0px', threshold: 0.6 }; // 60% visibility required
             
-            // Take last 20 posts for the chart
-            likesArray.slice(0, 20).forEach(val => {
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                const height = (val / maxLike) * 100;
-                bar.style.height = `${Math.max(height, 5)}%`; // Min height 5%
-                bar.setAttribute('data-val', formatNumber(val));
-                chart.appendChild(bar);
-            });
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target.querySelector('video');
+                    if(entry.isIntersecting) {
+                        video.play().catch(e => console.log("Autoplay blocked")); // Handle browsers blocking autoplay
+                    } else {
+                        video.pause();
+                        video.currentTime = 0; // Reset loop
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.reel-item').forEach(el => observer.observe(el));
         }
 
-        function setFilter(type, btn) {
-            currentFilter = type;
-            // Update UI buttons
-            btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
+        // Manually trigger check (used when switching tabs)
+        function handleIntersection() {
+            const reels = document.querySelectorAll('.reel-item');
+            // Basic fallback: find centered reel
+            // Ideally, the Observer handles this naturally when the div becomes visible
         }
 
-        function setSort(type, btn) {
-            currentSort = type;
-            btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
-        }
-
-        function applyFilters() {
-            if(!currentData.posts) return;
-
-            let filtered = [...currentData.posts];
-
-            // 1. Filter
-            if(currentFilter === 'video') filtered = filtered.filter(p => p.is_video);
-            if(currentFilter === 'image') filtered = filtered.filter(p => !p.is_video);
-
-            // 2. Sort
-            if(currentSort === 'popular') {
-                filtered.sort((a, b) => b.like_count - a.like_count);
-            } else {
-                filtered.sort((a, b) => b.timestamp - a.timestamp);
-            }
-
-            renderGrid(filtered);
-        }
-
-        function renderGrid(posts) {
-            const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = '';
-
-            posts.forEach(post => {
-                const card = document.createElement('div');
-                card.className = 'post-card';
-                
-                const typeBadge = post.is_video ? 
-                    `<div class="type-badge"><i data-feather="video" width="12"></i> Reel</div>` : '';
-
-                card.innerHTML = `
-                    <img class="post-img" src="${post.thumbnail_url}" loading="lazy">
-                    ${typeBadge}
-                    <div class="post-meta">
-                        <div class="meta-stat"><i data-feather="heart" width="14"></i> ${formatNumber(post.like_count)}</div>
-                        <div class="meta-stat"><i data-feather="message-circle" width="14"></i> ${formatNumber(post.comment_count)}</div>
-                    </div>
-                `;
-                card.onclick = () => openModal(post);
-                grid.appendChild(card);
+        function toggleMuteAll() {
+            isMuted = !isMuted;
+            document.querySelectorAll('video').forEach(v => v.muted = isMuted);
+            
+            // Update icons
+            const iconName = isMuted ? 'volume-x' : 'volume-2';
+            document.querySelectorAll('[id^="muteIcon-"]').forEach(icon => {
+                icon.innerHTML = `<i data-feather="${iconName}"></i>`;
             });
             feather.replace();
         }
 
+        // --- Analytics / Search Logic ---
+        function handleEnter(e) { if(e.key === 'Enter') executeSearch(); }
+
+        async function executeSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if(!query) return;
+
+            document.getElementById('emptySearchState').style.display = 'none';
+            document.getElementById('profileResult').style.display = 'none';
+            document.getElementById('searchLoader').style.display = 'flex';
+
+            try {
+                const res = await fetch(`https://api.xyro.site/stalk/instagram?username=${query}`);
+                const json = await res.json();
+
+                if(!json.status || !json.data) throw new Error("User not found");
+                const d = json.data;
+
+                // Render Profile
+                document.getElementById('pfp').src = d.profile_pic_url;
+                document.getElementById('fullName').innerText = d.full_name;
+                document.getElementById('username').innerText = `@${d.username}`;
+                document.getElementById('statPosts').innerText = formatNum(d.posts_count);
+                document.getElementById('statFollowers').innerText = formatNum(d.followers_count);
+
+                // Avg Likes Calculation
+                const posts = d.posts || [];
+                const totalLikes = posts.reduce((sum, p) => sum + p.like_count, 0);
+                const avg = posts.length ? Math.round(totalLikes / posts.length) : 0;
+                document.getElementById('statLikes').innerText = formatNum(avg);
+
+                // Render Grid
+                const grid = document.getElementById('mediaGrid');
+                grid.innerHTML = '';
+                posts.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'media-item';
+                    const badge = p.is_video ? `<i data-feather="play" width="12" class="type-badge"></i>` : '';
+                    div.innerHTML = `<img src="${p.thumbnail_url}">${badge}`;
+                    div.onclick = () => openModal(p);
+                    grid.appendChild(div);
+                });
+
+                document.getElementById('searchLoader').style.display = 'none';
+                document.getElementById('profileResult').style.display = 'block';
+                feather.replace();
+
+            } catch (err) {
+                document.getElementById('searchLoader').style.display = 'none';
+                alert("User not found or private profile.");
+            }
+        }
+
+        // --- Modal & Download ---
         function openModal(post) {
             const modal = document.getElementById('mediaModal');
-            const mediaBox = document.getElementById('modalMedia');
-            
-            mediaBox.innerHTML = '';
-            
+            const content = document.getElementById('modalContent');
+            const dlLink = document.getElementById('downloadLink');
+
+            content.innerHTML = '';
+            const url = post.is_video ? post.video_url : post.thumbnail_url;
+
             if(post.is_video) {
-                const vid = document.createElement('video');
-                vid.src = post.video_url;
-                vid.controls = true;
-                vid.autoplay = true;
-                mediaBox.appendChild(vid);
-                document.getElementById('modalDownload').href = post.video_url;
+                content.innerHTML = `<video src="${url}" controls autoplay style="width:100%; max-height:70vh;"></video>`;
             } else {
-                const img = document.createElement('img');
-                img.src = post.thumbnail_url;
-                mediaBox.appendChild(img);
-                document.getElementById('modalDownload').href = post.thumbnail_url;
+                content.innerHTML = `<img src="${url}" style="width:100%; max-height:70vh; object-fit:contain;">`;
             }
 
-            document.getElementById('modalPfp').src = currentData.profile_pic_url;
-            document.getElementById('modalUser').innerText = currentData.username;
-            document.getElementById('modalCaption').innerText = post.caption || "No caption";
-            document.getElementById('modalLikes').innerText = formatNumber(post.like_count);
-            document.getElementById('modalComments').innerText = formatNumber(post.comment_count);
+            dlLink.href = url;
+            // Force download handling often requires proxy or backend, 
+            // but setting href to direct media works for opening in new tab/saving.
             
-            const date = new Date(post.timestamp * 1000);
-            document.getElementById('modalDate').innerText = date.toLocaleDateString();
-
             modal.style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('mediaModal').style.display = 'none';
-            document.getElementById('modalMedia').innerHTML = ''; // Stop Video
+            document.getElementById('modalContent').innerHTML = '';
         }
 
-        function exportData() {
-            if(!currentData) return;
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentData, null, 2));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", `${currentData.username}_data.json`);
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        function formatNumber(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        // --- Helpers ---
+        function formatNum(num) {
+            if(num >= 1000000) return (num/1000000).toFixed(1) + 'M';
+            if(num >= 1000) return (num/1000).toFixed(1) + 'K';
             return num;
         }
+
     </script>
 </body>
 </html>

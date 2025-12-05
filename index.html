@@ -3,46 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstaStalk Pro</title>
+    <title>InstaStalk Ultra</title>
     <style>
+        /* --- THEME VARIABLES --- */
         :root {
             --bg-body: #fafafa;
             --bg-card: #ffffff;
-            --text-primary: #262626;
-            --text-secondary: #8e8e8e;
-            --link-blue: #0095f6;
-            --border-color: #dbdbdb;
-            --skeleton: #efefef;
+            --text-main: #262626;
+            --text-sub: #8e8e8e;
+            --border: #dbdbdb;
+            --accent: #0095f6;
+            --accent-hover: #1877f2;
+            --skeleton-base: #e0e0e0;
+            --skeleton-highlight: #f0f0f0;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        * { box-sizing: border-box; outline: none; }
+        [data-theme="dark"] {
+            --bg-body: #000000;
+            --bg-card: #121212;
+            --text-main: #f5f5f5;
+            --text-sub: #a8a8a8;
+            --border: #363636;
+            --skeleton-base: #1c1c1c;
+            --skeleton-highlight: #2a2a2a;
+            --modal-bg: rgba(0, 0, 0, 0.95);
+            --shadow: none;
+        }
 
+        * { box-sizing: border-box; outline: none; transition: background-color 0.3s, color 0.3s; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-primary);
+            color: var(--text-main);
             margin: 0;
-            padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
         }
 
-        /* --- Header / Search --- */
-        header {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
+        /* --- HEADER --- */
+        nav {
             width: 100%;
-            padding: 15px 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 50;
+            padding: 12px 0;
         }
 
-        .header-content {
-            max-width: 935px;
+        .nav-container {
+            max-width: 975px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -50,187 +65,174 @@
             padding: 0 20px;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-family: 'Cookie', cursive, sans-serif; /* Fallback */
-            letter-spacing: 1px;
+        .brand {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+            letter-spacing: -1px;
         }
 
-        .search-bar {
+        .search-wrapper {
+            position: relative;
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
         }
 
         input {
             background: var(--bg-body);
-            border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            border-radius: 4px;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 9px 15px;
+            border-radius: 8px;
+            width: 250px;
             font-size: 14px;
-            width: 200px;
         }
 
-        button.search-btn {
-            background: var(--link-blue);
+        .btn {
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 0 15px;
+            padding: 9px 18px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
+            font-size: 13px;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            padding: 5px;
         }
 
-        button.search-btn:hover { opacity: 0.8; }
-        button.search-btn:disabled { background: #b2dffc; cursor: default; }
+        /* --- HISTORY CHIPS --- */
+        .history-bar {
+            max-width: 975px;
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            padding: 10px 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chip:hover { border-color: var(--text-sub); color: var(--text-main); }
 
-        /* --- Main Container --- */
+        /* --- MAIN LAYOUT --- */
         main {
             max-width: 935px;
             width: 100%;
             padding: 30px 20px;
-            display: none; /* Hidden until loaded */
         }
 
-        /* --- Profile Header --- */
-        .profile-header {
+        /* --- PROFILE HEADER --- */
+        .profile-section {
             display: flex;
+            align-items: center;
             margin-bottom: 44px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 44px;
         }
 
-        .profile-image-container {
-            flex: 1;
+        .pfp-container {
+            flex: 0 0 30%;
             display: flex;
             justify-content: center;
-            margin-right: 30px;
         }
 
-        .profile-pic {
+        .pfp {
             width: 150px;
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1px solid var(--border-color);
-            padding: 2px;
+            border: 2px solid var(--bg-body);
+            box-shadow: 0 0 0 2px var(--border);
         }
 
-        .profile-info {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+        .info-container { flex: 1; margin-left: 30px; }
 
-        .username-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .username-block { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .username { font-size: 28px; font-weight: 300; }
+        .verified { width: 18px; height: 18px; fill: var(--accent); display: none; }
+
+        .stats-block { display: flex; gap: 40px; margin-bottom: 20px; font-size: 16px; }
+        .stat-num { font-weight: 700; color: var(--text-main); }
+        .stat-label { color: var(--text-main); }
+
+        .bio-block { font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+        .full-name { font-weight: 700; margin-bottom: 4px; }
+
+        /* --- GRID --- */
+        .grid-nav {
+            border-top: 1px solid var(--border);
+            text-align: center;
             margin-bottom: 20px;
         }
-
-        .username {
-            font-size: 28px;
-            font-weight: 300;
-        }
-
-        .verified-badge {
-            width: 18px;
-            height: 18px;
-            fill: #3897f0;
-            display: none; /* Toggled via JS */
-        }
-
-        .stats-row {
-            display: flex;
-            gap: 40px;
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-
-        .stats-row span {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .fullname {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .bio {
-            font-size: 16px;
-            white-space: pre-wrap; /* Keeps line breaks */
-            line-height: 1.5;
-        }
-
-        /* --- Gallery Grid --- */
-        .gallery-nav {
-            display: flex;
-            justify-content: center;
-            border-top: 1px solid var(--border-color);
-            margin-bottom: 10px;
-        }
-        
-        .gallery-tab {
-            border-top: 1px solid var(--text-primary);
+        .grid-nav span {
+            display: inline-block;
+            border-top: 1px solid var(--text-main);
             margin-top: -1px;
             padding: 15px;
             font-size: 12px;
             font-weight: 600;
             letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            color: var(--text-main);
         }
 
-        .gallery-grid {
+        .gallery {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
-            gap: 28px; /* Classic Insta gap */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
         }
 
-        .gallery-item {
+        .post-item {
             position: relative;
-            width: 100%;
-            padding-bottom: 100%; /* Square aspect ratio */
-            background-color: var(--skeleton);
+            aspect-ratio: 1/1;
+            background: var(--border);
             cursor: pointer;
             overflow: hidden;
+            border-radius: 4px;
         }
 
-        .gallery-item img, .gallery-item video {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .post-img, .post-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .video-icon {
+        .type-icon {
             position: absolute;
             top: 10px;
             right: 10px;
             color: white;
-            font-size: 20px;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-            z-index: 5;
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+            z-index: 2;
         }
 
-        /* Hover Overlay */
-        .gallery-overlay {
+        .overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.3);
+            inset: 0;
+            background: rgba(0,0,0,0.4);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -239,424 +241,544 @@
             transition: opacity 0.2s;
             color: white;
             font-weight: bold;
-            font-size: 16px;
+        }
+        .post-item:hover .overlay { opacity: 1; }
+        .overlay-item { display: flex; align-items: center; gap: 6px; }
+        .overlay-item svg { fill: white; width: 18px; height: 18px; }
+
+        /* --- SKELETON LOADER --- */
+        .skeleton {
+            background-color: var(--skeleton-base);
+            background-image: linear-gradient(90deg, var(--skeleton-base), var(--skeleton-highlight), var(--skeleton-base));
+            background-size: 200px 100%;
+            background-repeat: no-repeat;
+            border-radius: 4px;
+            display: inline-block;
+            animation: shimmer 1.5s infinite linear;
         }
 
-        .gallery-item:hover .gallery-overlay {
-            opacity: 1;
-        }
+        @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
 
-        .overlay-stat {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .overlay-stat svg {
-            fill: white;
-            width: 18px;
-            height: 18px;
-        }
-
-        /* --- Modal (Lightbox) --- */
+        /* --- MODAL --- */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.8);
+            inset: 0;
+            background: var(--modal-bg);
+            z-index: 100;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
 
-        .modal-content {
-            background-color: #fff;
-            display: flex;
-            max-width: 900px;
+        .modal-inner {
+            background: var(--bg-card);
+            max-width: 1100px;
             width: 100%;
             max-height: 90vh;
+            display: flex;
             border-radius: 4px;
             overflow: hidden;
+            position: relative;
         }
 
-        .modal-media {
+        .modal-media-box {
             flex: 1.5;
-            background: #000;
+            background: black;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
-        
-        .modal-media img, .modal-media video {
-            width: 100%;
-            height: 100%;
+
+        .modal-media-box img, .modal-media-box video {
+            max-width: 100%;
             max-height: 90vh;
             object-fit: contain;
         }
 
-        .modal-info {
+        .modal-info-box {
             flex: 1;
-            padding: 20px;
             display: flex;
             flex-direction: column;
-            border-left: 1px solid var(--border-color);
-            overflow-y: auto;
+            border-left: 1px solid var(--border);
         }
 
         .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 15px;
+            gap: 10px;
         }
+        .modal-pfp { width: 32px; height: 32px; border-radius: 50%; }
+        .modal-user { font-weight: 600; font-size: 14px; }
 
-        .modal-user-img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .modal-username {
-            font-weight: 600;
+        .modal-scroll {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
             font-size: 14px;
+            line-height: 1.5;
         }
 
-        .modal-caption {
-            font-size: 14px;
-            line-height: 1.4;
-            margin-bottom: 20px;
-            flex-grow: 1;
+        .modal-actions {
+            padding: 15px;
+            border-top: 1px solid var(--border);
         }
 
-        .modal-meta {
-            margin-top: auto;
-            color: var(--text-secondary);
-            font-size: 12px;
-            text-transform: uppercase;
-        }
+        .action-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .icon-btn { background: none; border: none; cursor: pointer; color: var(--text-main); padding: 0; }
+        .icon-btn svg { width: 24px; height: 24px; }
+        .icon-btn:hover { color: var(--text-sub); }
 
         .download-btn {
-            background: var(--link-blue);
-            color: white;
+            display: block;
+            text-align: center;
+            background: var(--border);
+            color: var(--text-main);
             text-decoration: none;
             padding: 10px;
-            text-align: center;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 600;
-            margin-top: 15px;
-            display: block;
+            margin-top: 10px;
         }
 
-        .close-modal {
+        .nav-arrow {
             position: absolute;
-            top: 15px;
-            right: 25px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.7);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
             cursor: pointer;
-            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .nav-prev { left: 10px; }
+        .nav-next { right: 10px; }
+
+        /* --- TOAST NOTIFICATION --- */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #262626;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 200;
         }
 
-        /* --- Utilities --- */
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: var(--text-secondary);
-            display: none;
-        }
-        
-        .error-msg {
-            color: red;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
-        }
-
-        /* Mobile Responsive */
+        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .profile-header {
-                flex-direction: column;
-                padding-left: 20px;
-            }
-            .profile-image-container { margin-bottom: 15px; justify-content: flex-start; }
-            .profile-pic { width: 80px; height: 80px; }
-            .stats-row { justify-content: space-between; gap: 0; border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; }
-            .stats-row li { display: flex; flex-direction: column; align-items: center; }
-            .gallery-grid { gap: 3px; }
-            .modal-content { flex-direction: column; height: auto; max-height: none; }
-            .modal-media { max-height: 50vh; }
+            .profile-section { flex-direction: column; align-items: flex-start; }
+            .pfp-container { width: 100%; margin-bottom: 20px; justify-content: flex-start; }
+            .pfp { width: 80px; height: 80px; }
+            .info-container { margin: 0; width: 100%; }
+            .stats-block { justify-content: space-between; gap: 0; }
+            .gallery { gap: 3px; }
+            .modal-inner { flex-direction: column; max-height: none; height: 100%; }
+            .modal-media-box { flex: none; height: 50vh; background: #000; }
+            .modal-info-box { flex: 1; }
         }
+
+        /* Helper for hiding elements */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <!-- Header -->
-    <header>
-        <div class="header-content">
-            <div class="logo">InstaStalk Pro</div>
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search Username..." value="">
-                <button class="search-btn" onclick="fetchData()">Search</button>
+    <nav>
+        <div class="nav-container">
+            <div class="brand" onclick="location.reload()">InstaStalk Ultra</div>
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="Search username..." onkeypress="handleEnter(event)">
+                <button class="btn" onclick="initSearch()">Search</button>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <div class="error-msg" id="errorMsg"></div>
-    <div class="loading" id="loader">Loading Profile data...</div>
+    <!-- History Bar -->
+    <div class="history-bar" id="historyContainer"></div>
 
-    <!-- Main Profile Area -->
-    <main id="mainContent">
-        <div class="profile-header">
-            <div class="profile-image-container">
-                <img src="" id="profilePic" class="profile-pic" alt="Profile">
-            </div>
-            <div class="profile-info">
-                <div class="username-row">
-                    <h2 class="username" id="usernameDisplay">username</h2>
-                    <!-- Verified SVG -->
-                    <svg class="verified-badge" id="verifiedBadge" viewBox="0 0 48 48">
-                        <path d="M24 48C10.8 48 0 37.2 0 24S10.8 0 24 0s24 10.8 24 24-10.8 24-24 24zm-2.4-14.4l13.6-13.6-2.8-2.8-10.8 10.8-5.6-5.6-2.8 2.8 8.4 8.4z"></path>
-                    </svg>
+    <!-- Error Message -->
+    <div id="errorMsg" style="text-align: center; color: red; margin-top: 20px; display: none;"></div>
+
+    <!-- Main Content -->
+    <main id="mainContainer">
+        
+        <!-- Skeleton Loader (Hidden by default) -->
+        <div id="skeletonLoader" class="hidden">
+            <div class="profile-section">
+                <div class="pfp-container">
+                    <div class="skeleton" style="width: 150px; height: 150px; border-radius: 50%;"></div>
                 </div>
-                
-                <div class="stats-row">
-                    <div><span id="postsCount">0</span> posts</div>
-                    <div><span id="followersCount">0</span> followers</div>
-                    <div><span id="followingCount">0</span> following</div>
+                <div class="info-container">
+                    <div class="skeleton" style="width: 200px; height: 30px; margin-bottom: 15px;"></div>
+                    <div class="skeleton" style="width: 300px; height: 20px; margin-bottom: 15px;"></div>
+                    <div class="skeleton" style="width: 100%; height: 60px;"></div>
                 </div>
-
-                <div class="fullname" id="fullNameDisplay">Full Name</div>
-                <div class="bio" id="bioDisplay"></div>
+            </div>
+            <div class="gallery" style="gap:28px;">
+                <div class="skeleton" style="padding-bottom: 100%;"></div>
+                <div class="skeleton" style="padding-bottom: 100%;"></div>
+                <div class="skeleton" style="padding-bottom: 100%;"></div>
             </div>
         </div>
 
-        <!-- Gallery Tabs -->
-        <div class="gallery-nav">
-            <div class="gallery-tab">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                POSTS
-            </div>
-        </div>
+        <!-- Real Profile Data -->
+        <div id="profileContent" class="hidden">
+            <div class="profile-section">
+                <div class="pfp-container">
+                    <img id="pfp" src="" class="pfp" alt="Profile">
+                </div>
+                <div class="info-container">
+                    <div class="username-block">
+                        <h2 id="username" class="username"></h2>
+                        <svg id="verified" class="verified" viewBox="0 0 48 48"><path d="M24 48C10.8 48 0 37.2 0 24S10.8 0 24 0s24 10.8 24 24-10.8 24-24 24zm-2.4-14.4l13.6-13.6-2.8-2.8-10.8 10.8-5.6-5.6-2.8 2.8 8.4 8.4z"></path></svg>
+                    </div>
+                    
+                    <div class="stats-block">
+                        <div><span id="statPosts" class="stat-num">0</span> <span class="stat-label">posts</span></div>
+                        <div><span id="statFollowers" class="stat-num">0</span> <span class="stat-label">followers</span></div>
+                        <div><span id="statFollowing" class="stat-num">0</span> <span class="stat-label">following</span></div>
+                    </div>
 
-        <!-- Grid -->
-        <div class="gallery-grid" id="galleryGrid">
-            <!-- Items injected by JS -->
+                    <div class="full-name" id="fullname"></div>
+                    <div class="bio-block" id="bio"></div>
+                </div>
+            </div>
+
+            <div class="grid-nav"><span>POSTS</span></div>
+            <div id="galleryGrid" class="gallery"></div>
         </div>
     </main>
 
     <!-- Modal -->
-    <div id="postModal" class="modal">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <div class="modal-content">
-            <div class="modal-media" id="modalMediaContainer">
-                <!-- Image or Video injected here -->
+    <div id="mediaModal" class="modal" onclick="if(event.target === this) closeModal()">
+        <div class="modal-inner">
+            <div class="modal-media-box" id="modalMedia">
+                <!-- Media injected here -->
+                <button class="nav-arrow nav-prev" onclick="changePost(-1)">&#10094;</button>
+                <button class="nav-arrow nav-next" onclick="changePost(1)">&#10095;</button>
             </div>
-            <div class="modal-info">
+            <div class="modal-info-box">
                 <div class="modal-header">
-                    <img src="" id="modalUserImg" class="modal-user-img">
-                    <div class="modal-username" id="modalUsername"></div>
+                    <img id="modalPfp" src="" class="modal-pfp">
+                    <span id="modalUsername" class="modal-user"></span>
                 </div>
-                <div class="modal-caption" id="modalCaption"></div>
-                <div class="modal-meta">
-                    <div id="modalDate"></div>
-                    <div style="margin-top:5px;"><strong id="modalLikes"></strong> Likes</div>
+                <div class="modal-scroll">
+                    <p id="modalCaption"></p>
+                    <p id="modalDate" style="color:var(--text-sub); font-size:12px; margin-top:10px; text-transform:uppercase;"></p>
                 </div>
-                <a href="#" target="_blank" id="downloadLink" class="download-btn">Download Media</a>
+                <div class="modal-actions">
+                    <div class="action-row">
+                        <div style="display:flex; gap:15px;">
+                            <button class="icon-btn" title="Like">
+                                <svg fill="currentColor" viewBox="0 0 48 48"><path d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 15.1-15.5 25.3L24 48 4.9 42.9C-4.7 32.7 1.2 24.4 1.2 17.6c0-6.3 4.7-11.5 10.4-11.5 4 0 7.3 2.5 8.9 6.2h3.2c1.7-3.7 5.3-6.2 8.9-6.2z"></path></svg>
+                            </button>
+                            <button class="icon-btn" title="Comment">
+                                <svg fill="currentColor" viewBox="0 0 48 48"><path d="M47.8 3.8c-.3-.5-.8-.8-1.3-.8h-45C.9 3.1.3 3.5.1 4S0 5.2.4 5.7l15.9 15.6 5.5 22.6c.1.6.6 1 1.2 1.1h.2c.5 0 1-.3 1.3-.7l23.2-39c.4-.4.4-1 .1-1.5zM5.2 6.1h35.5L18 18.7 5.2 6.1zm18.7 33.6l-4.4-18.4L42.4 8.6 23.9 39.7z"></path></svg>
+                            </button>
+                        </div>
+                        <button class="icon-btn" onclick="copyCaption()" title="Copy Caption">
+                             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                    </div>
+                    <div id="modalLikeCount" style="font-weight:bold; margin-bottom:5px;"></div>
+                    <a id="dlBtn" href="#" target="_blank" class="download-btn">Download Media</a>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="toast" class="toast">Notification</div>
+
     <script>
-        const API_BASE = "https://api.xyro.site/stalk/instagram?username=";
+        // --- CONFIG & STATE ---
+        const API_URL = "https://api.xyro.site/stalk/instagram?username=";
+        let currentData = null; // Stores full API response
+        let currentPostIndex = 0; // Tracks which post is open in modal
 
-        // --- DOM Elements ---
-        const els = {
-            input: document.getElementById('searchInput'),
-            loader: document.getElementById('loader'),
-            error: document.getElementById('errorMsg'),
-            main: document.getElementById('mainContent'),
-            pfp: document.getElementById('profilePic'),
-            username: document.getElementById('usernameDisplay'),
-            fullName: document.getElementById('fullNameDisplay'),
-            bio: document.getElementById('bioDisplay'),
-            verified: document.getElementById('verifiedBadge'),
-            stats: {
-                posts: document.getElementById('postsCount'),
-                followers: document.getElementById('followersCount'),
-                following: document.getElementById('followingCount')
-            },
-            grid: document.getElementById('galleryGrid'),
-            modal: {
-                self: document.getElementById('postModal'),
-                media: document.getElementById('modalMediaContainer'),
-                userImg: document.getElementById('modalUserImg'),
-                username: document.getElementById('modalUsername'),
-                caption: document.getElementById('modalCaption'),
-                date: document.getElementById('modalDate'),
-                likes: document.getElementById('modalLikes'),
-                dlBtn: document.getElementById('downloadLink')
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            
+            if (isDark) {
+                body.removeAttribute('data-theme');
+                btn.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btn.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
             }
-        };
+        }
 
-        // --- Fetch Logic ---
-        async function fetchData() {
-            const username = els.input.value.trim();
-            if (!username) return alert("Please enter a username");
+        // Initialize Theme
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeBtn').innerText = '☀️';
+        }
 
-            // Reset UI
-            els.main.style.display = 'none';
-            els.error.style.display = 'none';
-            els.loader.style.display = 'block';
-            els.grid.innerHTML = '';
+        // --- SEARCH HISTORY ---
+        function updateHistory(username) {
+            let history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+            // Remove if exists, add to front
+            history = history.filter(u => u !== username);
+            history.unshift(username);
+            // Keep max 5
+            if(history.length > 5) history.pop();
+            localStorage.setItem('searchHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+            const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+            container.innerHTML = '';
+            
+            if(history.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'flex';
+
+            history.forEach(u => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.innerHTML = `<span>${u}</span> <span style="font-size:10px" onclick="removeFromHistory(event, '${u}')">✕</span>`;
+                chip.onclick = (e) => {
+                    // Prevent deleting when clicking text
+                    if(e.target.tagName !== 'SPAN' || e.target.innerText === u) {
+                        document.getElementById('searchInput').value = u;
+                        initSearch();
+                    }
+                };
+                container.appendChild(chip);
+            });
+        }
+
+        function removeFromHistory(e, username) {
+            e.stopPropagation(); // Stop click from triggering search
+            let history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+            history = history.filter(u => u !== username);
+            localStorage.setItem('searchHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        // --- MAIN FETCH LOGIC ---
+        function handleEnter(e) { if(e.key === 'Enter') initSearch(); }
+
+        async function initSearch() {
+            const username = document.getElementById('searchInput').value.trim();
+            if (!username) return;
+
+            // Update UI
+            document.getElementById('profileContent').classList.add('hidden');
+            document.getElementById('skeletonLoader').classList.remove('hidden');
+            document.getElementById('errorMsg').style.display = 'none';
+            updateHistory(username);
 
             try {
-                const res = await fetch(API_BASE + username);
+                const res = await fetch(API_URL + username);
                 const json = await res.json();
 
-                if (!json.status || !json.data) {
-                    throw new Error("User not found or API Error");
-                }
-
-                renderProfile(json.data);
+                if (!json.status || !json.data) throw new Error("User not found or API error.");
                 
-            } catch (e) {
-                els.error.innerText = e.message;
-                els.error.style.display = 'block';
-            } finally {
-                els.loader.style.display = 'none';
+                currentData = json.data;
+                renderProfile(json.data);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('errorMsg').innerText = err.message;
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('skeletonLoader').classList.add('hidden');
             }
         }
 
-        // --- Render Profile ---
         function renderProfile(data) {
-            // Header Info
-            els.pfp.src = data.profile_pic_url;
-            els.username.innerText = data.username;
-            els.fullName.innerText = data.full_name;
-            els.bio.innerText = data.biography;
+            // Text Fields
+            document.getElementById('username').innerText = data.username;
+            document.getElementById('fullname').innerText = data.full_name;
+            document.getElementById('bio').innerText = data.biography;
             
-            // Verified Badge
-            els.verified.style.display = data.is_verified ? 'block' : 'none';
-
             // Stats
-            els.stats.posts.innerText = formatNumber(data.posts_count);
-            els.stats.followers.innerText = formatNumber(data.followers_count);
-            els.stats.following.innerText = formatNumber(data.following_count);
+            document.getElementById('statPosts').innerText = formatNum(data.posts_count);
+            document.getElementById('statFollowers').innerText = formatNum(data.followers_count);
+            document.getElementById('statFollowing').innerText = formatNum(data.following_count);
 
-            // Posts Loop
-            if (data.posts && data.posts.length > 0) {
-                data.posts.forEach(post => {
-                    createPostItem(post, data);
+            // Images
+            document.getElementById('pfp').src = data.profile_pic_url;
+            
+            // Badge
+            document.getElementById('verified').style.display = data.is_verified ? 'block' : 'none';
+
+            // Grid
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            if(data.posts && data.posts.length > 0) {
+                data.posts.forEach((post, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'post-item';
+                    
+                    // Video Indicator
+                    const icon = post.is_video ? '▶' : '';
+                    const typeHtml = icon ? `<div class="type-icon" style="font-size:20px; font-weight:bold;">${icon}</div>` : '';
+
+                    el.innerHTML = `
+                        <img class="post-img" src="${post.thumbnail_url}" loading="lazy">
+                        ${typeHtml}
+                        <div class="overlay">
+                            <div class="overlay-item">❤️ ${formatNum(post.like_count)}</div>
+                        </div>
+                    `;
+                    el.onclick = () => openModal(index);
+                    grid.appendChild(el);
                 });
             } else {
-                els.grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">No posts available or Private Account</div>';
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-sub)">No posts available.</div>';
             }
 
-            els.main.style.display = 'block';
+            // Switch Views
+            document.getElementById('skeletonLoader').classList.add('hidden');
+            document.getElementById('profileContent').classList.remove('hidden');
         }
 
-        // --- Create Grid Item ---
-        function createPostItem(post, userData) {
-            const div = document.createElement('div');
-            div.className = 'gallery-item';
-
-            // Check for Video
-            const isVideo = post.is_video;
-            const iconHtml = isVideo ? `<div class="video-icon">▶</div>` : '';
-
-            div.innerHTML = `
-                <img src="${post.thumbnail_url}" loading="lazy">
-                ${iconHtml}
-                <div class="gallery-overlay">
-                    <div class="overlay-stat">
-                        <svg viewBox="0 0 48 48"><path d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 15.1-15.5 25.3L24 48 4.9 42.9C-4.7 32.7 1.2 24.4 1.2 17.6c0-6.3 4.7-11.5 10.4-11.5 4 0 7.3 2.5 8.9 6.2h3.2c1.7-3.7 5.3-6.2 8.9-6.2z"></path></svg>
-                        ${formatNumber(post.like_count)}
-                    </div>
-                    <div class="overlay-stat">
-                        <svg viewBox="0 0 48 48"><path d="M47.8 3.8c-.3-.5-.8-.8-1.3-.8h-45C.9 3.1.3 3.5.1 4S0 5.2.4 5.7l15.9 15.6 5.5 22.6c.1.6.6 1 1.2 1.1h.2c.5 0 1-.3 1.3-.7l23.2-39c.4-.4.4-1 .1-1.5zM5.2 6.1h35.5L18 18.7 5.2 6.1zm18.7 33.6l-4.4-18.4L42.4 8.6 23.9 39.7z"></path></svg>
-                        ${formatNumber(post.comment_count)}
-                    </div>
-                </div>
-            `;
-
-            // Click Event for Modal
-            div.onclick = () => openModal(post, userData);
-            els.grid.appendChild(div);
+        // --- MODAL LOGIC ---
+        function openModal(index) {
+            currentPostIndex = index;
+            updateModalContent();
+            document.getElementById('mediaModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
 
-        // --- Modal Logic ---
-        function openModal(post, userData) {
-            // Set User Header in Modal
-            els.modal.userImg.src = userData.profile_pic_url;
-            els.modal.username.innerText = userData.username;
+        function updateModalContent() {
+            if(!currentData || !currentData.posts[currentPostIndex]) return;
+            
+            const post = currentData.posts[currentPostIndex];
+            const mediaBox = document.getElementById('modalMedia');
+            
+            // Remove old media (keep arrows)
+            const oldMedia = mediaBox.querySelectorAll('img, video');
+            oldMedia.forEach(el => el.remove());
 
-            // Set Media
-            els.modal.media.innerHTML = ''; // Clear previous
-            if (post.is_video) {
+            // Add new media
+            if(post.is_video) {
                 const vid = document.createElement('video');
                 vid.src = post.video_url;
                 vid.controls = true;
                 vid.autoplay = true;
-                els.modal.media.appendChild(vid);
-                els.modal.dlBtn.href = post.video_url;
-                els.modal.dlBtn.download = `insta_vid_${post.shortcode}.mp4`;
+                mediaBox.insertBefore(vid, mediaBox.firstChild); // Insert before arrows
+                
+                // Update Download Link
+                const dlBtn = document.getElementById('dlBtn');
+                dlBtn.href = post.video_url;
+                dlBtn.setAttribute('download', ''); 
             } else {
                 const img = document.createElement('img');
-                // The thumbnail in JSON is actually high quality usually, 
-                // but strictly speaking we don't have a separate "display_url" in this JSON schema.
-                // We will use thumbnail_url or video_url(if it was image post posing as video which happens rarely).
-                // Based on JSON, image posts use thumbnail_url.
-                img.src = post.thumbnail_url; 
-                els.modal.media.appendChild(img);
-                els.modal.dlBtn.href = post.thumbnail_url;
-                els.modal.dlBtn.download = `insta_img_${post.shortcode}.jpg`;
+                img.src = post.thumbnail_url;
+                mediaBox.insertBefore(img, mediaBox.firstChild);
+                
+                // Update Download Link
+                const dlBtn = document.getElementById('dlBtn');
+                dlBtn.href = post.thumbnail_url;
+                dlBtn.setAttribute('download', '');
             }
 
-            // Set Details
-            els.modal.caption.innerText = post.caption || "";
-            els.modal.likes.innerText = formatNumber(post.like_count);
+            // Update Info
+            document.getElementById('modalPfp').src = currentData.profile_pic_url;
+            document.getElementById('modalUsername').innerText = currentData.username;
+            document.getElementById('modalCaption').innerText = post.caption || "";
+            document.getElementById('modalLikeCount').innerText = `${formatNum(post.like_count)} likes`;
             
-            // Format Date
             const date = new Date(post.timestamp * 1000);
-            els.modal.date.innerText = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('modalDate').innerText = date.toLocaleDateString(undefined, {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
 
-            els.modal.self.style.display = 'flex';
+            // Update Arrows Visibility
+            const prevBtn = document.querySelector('.nav-prev');
+            const nextBtn = document.querySelector('.nav-next');
+            prevBtn.style.display = currentPostIndex === 0 ? 'none' : 'flex';
+            nextBtn.style.display = currentPostIndex === currentData.posts.length - 1 ? 'none' : 'flex';
         }
 
         function closeModal() {
-            els.modal.self.style.display = 'none';
-            els.modal.media.innerHTML = ''; // Stop video playback
+            document.getElementById('mediaModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Stop video
+            const mediaBox = document.getElementById('modalMedia');
+            const vid = mediaBox.querySelector('video');
+            if(vid) vid.pause();
         }
 
-        // Close modal if clicking outside content
-        window.onclick = function(event) {
-            if (event.target == els.modal.self) {
-                closeModal();
+        function changePost(direction) {
+            const newIndex = currentPostIndex + direction;
+            if(newIndex >= 0 && newIndex < currentData.posts.length) {
+                currentPostIndex = newIndex;
+                updateModalContent();
             }
         }
 
-        // --- Helpers ---
-        function formatNumber(num) {
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if(document.getElementById('mediaModal').style.display === 'flex') {
+                if(e.key === 'ArrowLeft') changePost(-1);
+                if(e.key === 'ArrowRight') changePost(1);
+                if(e.key === 'Escape') closeModal();
+            }
+        });
+
+        // --- UTILS ---
+        function formatNum(num) {
+            if (!num) return '0';
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-            return num;
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toLocaleString();
         }
 
-        // Auto-Search if ?username= is in URL (Optional Polish)
-        const urlParams = new URLSearchParams(window.location.search);
-        const userParam = urlParams.get('username');
-        if(userParam) {
-            els.input.value = userParam;
-            fetchData();
+        function copyCaption() {
+            const text = document.getElementById('modalCaption').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Caption Copied!");
+            });
         }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 2000);
+        }
+
+        // Init History on Load
+        renderHistory();
+
+        // Check URL Params
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('username')) {
+            document.getElementById('searchInput').value = params.get('username');
+            initSearch();
+        }
+
     </script>
 </body>
 </html>
